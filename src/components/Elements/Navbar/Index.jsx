@@ -1,71 +1,18 @@
-import Button from "../Button/Index"
-import Header from "../Header/Index"
+import React, { useState } from 'react';
+import img from "../../../assets/logo.png"
 
-const Navbar = (props) => {    
-    const navLinks = 
-[
-    {
-        id : 1,
-        title : 'Home',
-        path : 'header'
-    },
-    {
-        id : 2,
-        title : 'About',
-        path : 'Program'
-    },
-    {
-        id : 3,
-        title : 'Service',
-        path : 'service'
-    },
-    {
-        id : 4,
-        title : 'Program',
-        path : 'Program'
-    },
-    {
-        id : 5,
-        title : 'Community',
-        path : 'Community'
-    }
-
-]  
-    return(
-        <div className="w-full h-screen bg-primary-light">
-        <nav class="bg-primary-light mx-auto px-8 py-8 flex items-center justify-between gap-8 max-h-20">
-         <img src="../public/img/logo-fit.png" alt="Logo" class="w-[150px] ml-11"/>
-            <ul class="flex items-center gap-12 list-none">
-                {navLinks.map ((item) => 
-                    <li 
-                    class="relative text-white pb-3 hover:text-secondary-dark hover:after:w-8 hover:after:bg-secondary-dark hover:after:bottom-0 hover:after:left-0 hover:after:absolute hover:after:h-0.5"
-                    key={item.id}>
-                        <a href={item.path}>
-                            {item.title}
-                        </a>
-                    </li>
-                )}                         
-            </ul>
-            <div>
-                <Button
-                variant= "bg-secondary-dark"
-                toLink = "/register"  
-                >
-                Sign Up
-                </Button>
-                <Button
-                variant= "tranparent" 
-                toLink = "/login"                
-                >
-                Sign in
-                </Button>
+const Navbar = () => {
+    return (
+        <div className="md:fixed md:w-full md:top-0 md:z-10 flex flex-row flex-wrap items-center bg-white p-6 border-b border-gray-300">
+            <div className="flex-none w-56 flex flex-row items-center">
+                <img src={img} className="w-10 flex-none" alt="logo" />
+                <strong className="text-secondary capitalize ml-1 flex-1">Smart Meter</strong>
+                <button id="sliderBtn" className="flex-none text-right text-gray-900 hidden md:block">
+                    <i className="fad fa-list-ul"></i>
+                </button>
             </div>
-        </nav>
-        <Header/>
         </div>
+    );
+};
 
-      
-    )
-}
-
-export default Navbar
+export default Navbar;

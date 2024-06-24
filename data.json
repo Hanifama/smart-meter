@@ -1,96 +1,25 @@
 {
-  "users": [
-    {
-      "id": "1",
-      "email": "user1@example.com",
-      "password": "password123",
-      "fullName": "User One",
-      "phoneNumber": "1234567890",
-      "guidApplication": "PROJECT-02b92ac2-9142-4e84-9661-7f27877ec645-2024",
-      "companyGuild": "COMPANY-1a34bc56-7890-4def-1234-9a8b7c6d5e4f-2024",
-      "role": 1
-    },
-    {
-      "id": "2",
-      "email": "user2@example.com",
-      "password": "securepassword",
-      "fullName": "User Two",
-      "phoneNumber": "0987654321",
-      "guidApplication": "PROJECT-02b92ac2-9142-4e84-9661-7f27877ec645-2024",
-      "companyGuild": "COMPANY-1a34bc56-7890-4def-1234-9a8b7c6d5e4f-2024",
-      "role": 2
-    },
-    {
-      "id": "2f94",
-      "fullName": "Harist Fadlilah",
-      "email": "haristfhorison12@gmail.com",
-      "password": "12345678",
-      "phoneNumber": "08888200925",
-      "guidApplication": "PROJECT-02b92ac2-9142-4e84-9661-7f27877ec645-2024",
-      "companyGuild": "COMPANY-1a34bc56-7890-4def-1234-9a8b7c6d5e4f-2024",
-      "role": 2
-    },
-    {
-      "id": "9c40",
-      "fullName": "Harist Fadlilah",
-      "email": "haristfhorison@gmail.com",
-      "password": "12345678",
-      "phoneNumber": "08888200925",
-      "guidApplication": "PROJECT-02b92ac2-9142-4e84-9661-7f27877ec645-2024",
-      "companyGuild": "COMPANY-1a34bc56-7890-4def-1234-9a8b7c6d5e4f-2024",
-      "role": 1
-    },
-    {
-      "id": "1f60",
-      "fullName": "Harist Faaaa",
-      "email": "haristfhorison111@gmail.com",
-      "password": "qwerty",
-      "phoneNumber": "08888200925",
-      "guidApplication": "PROJECT-02b92ac2-9142-4e84-9661-7f27877ec645-2024",
-      "companyGuild": "COMPANY-1a34bc56-7890-4def-1234-9a8b7c6d5e4f-2024",
-      "role": 3
-    }
-  ],
+  "users": [],
   "roles": [
     {
       "id": "1",
-      "name": "PT.LSKK"
+      "name": "superAdmin"
     },
     {
-      "id": "2",
-      "name": "Software House Indonesia"
+      "id": "1",
+      "name": "admin-instansi"
     },
     {
-      "id": "3",
-      "name": "PPTIK ITB"
+      "id": "1",
+      "name": "admin-cabang-instansi"
     },
     {
-      "id": "4",
-      "name": "PUSTKHAN ITB"
+      "id": "1",
+      "name": "user-pelanggan"
     },
     {
-      "id": "5",
-      "name": "Universitas Bandar Lampung"
-    },
-    {
-      "id": "6",
-      "name": "Institut Teknologi Garut (ITG)"
-    },
-    {
-      "id": "7",
-      "name": "Universitas Sangga Buana"
-    },
-    {
-      "id": "8",
-      "name": "Universitas Widyatama"
-    },
-    {
-      "id": "9",
-      "name": "FIK Universitas Lampung"
-    },
-    {
-      "id": "10",
-      "name": "Telkom Indonesia"
+      "id": "1",
+      "name": "user-umum"
     }
   ]
 }

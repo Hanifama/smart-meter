@@ -1,22 +1,20 @@
-// FormLogin.jsx
-
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Button from "../Elements/Button/Index";
 import InputForm from "../Elements/Input/Index";
 import Modal from "../Elements/Modal/Index";
 import Loader from "../Elements/Loader/Index";
+import { loginUser } from "../../server/index";
 
 const FormLogin = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     email: "",
     password: ""
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -32,61 +30,83 @@ const FormLogin = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validasi inputan kosong
+    if (!formData.email || !formData.password) {
+      setModalMessage("Mohon isi dengan lengkap data anda");
+      setIsModalOpen(true);
+      return;
+    }
+
     setIsLoading(true);
     setIsModalOpen(false);
 
     try {
-      // Simulate API call to validate user credentials
-      setTimeout(async () => {
-        // Replace this with your actual API call
-        const response = await fetch(`http://localhost:5000/users?email=${formData.email}&password=${formData.password}`);
-        const data = await response.json();
+      const response = await loginUser(formData.email, formData.password);
+      console.log('API Response:', response); // Log response untuk debugging
 
-        if (data.length > 0 && data[0].password === formData.password) {
-          // Simpan data pengguna ke local storage
-          localStorage.setItem('userProfile', JSON.stringify(data[0]));
-          dispatch({ type: 'LOGIN_SUCCESS', payload: data[0] });
+      if (response && response.statusCode === 200) {  
+        const { userToken } = response.data;
+        localStorage.setItem("userToken", userToken);
+        console.log('Token saved:', userToken);
+
+        setTimeout(() => {
           setIsLoading(false);
-          console.log("Data profil pengguna:", data[0]);
-          navigate('/');
-        } else {
+          setModalMessage("Selamat login Anda berhasil");
           setIsModalOpen(true);
-          setIsLoading(false);
-        }
-      }, 3000); // Simulate 3 seconds delay for loader
+
+          setTimeout(() => {
+            setIsModalOpen(false);
+            navigate('/dashboard');
+          }, 2000);
+        }, 1000);
+
+      } else if (response && response.statusCode === 500) {
+        setModalMessage("Email atau password salah");
+        setIsModalOpen(true);
+        setIsLoading(false);
+      } else {
+        throw new Error(`Unexpected status code: ${response ? response.statusCode : 'undefined'}`);
+      }
     } catch (error) {
       console.error('Error during login:', error);
-      setIsModalOpen(true);
       setIsLoading(false);
+      setModalMessage("Terjadi kesalahan pada server. Silakan coba lagi nanti.");
+      setIsModalOpen(true);
     }
   };
 
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <InputForm 
-          label="Email" 
-          type="email" 
-          placeholder="example@gmail.com" 
+        <InputForm
+          label="Email"
+          type="email"
+          placeholder="example@gmail.com"
           name="email"
           value={formData.email}
           onChange={handleChange}
         />
         <InputForm
-          label="Password" 
-          type="password" 
-          placeholder="****" 
+          label="Password"
+          type="password"
+          placeholder="****"
           name="password"
           value={formData.password}
           onChange={handleChange}
         />
-        <Button variant="bg-blue-600 w-full" disabled={isLoading}>
+        <div className="text-right mb-2">
+          <Link to="/forgot-password" className="text-primary-600">Lupa Password?</Link>
+        </div>
+        <Button variant="bg-primary w-full" disabled={isLoading}>
           {isLoading ? <Loader /> : "Login"}
         </Button>
       </form>
       <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
-        <h3 className="text-lg font-bold mb-4">Error</h3>
-        <p className="text-red-500">Email atau password salah</p>
+        <h3 className="text-lg font-bold mb-4">Pemberitahuan !</h3>
+        <p className={modalMessage.includes("berhasil") ? "text-green-500" : "text-red-500"}>
+          {modalMessage}
+        </p>
       </Modal>
     </>
   );

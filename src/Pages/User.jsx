@@ -1,48 +1,28 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const ProfileCard = ({ name, username, email, phone, website, company }) => {
-  const [isActive, setIsActive] = useState(false);
+const ProfileCard = () => {
+  const navigate = useNavigate();
 
-  const toggleActivation = () => {
-    setIsActive(!isActive);
+  const handleButton = (route) => {
+    navigate(route);
   };
 
   return (
-    <div className={`max-w-xl mx-auto rounded-lg overflow-hidden shadow-lg bg-white ${isActive ? 'border-green-500' : 'border-gray-300'}`}>
-      <div className="sm:flex sm:items-center px-6 py-4">
-        <img
-          className="block mx-auto sm:mx-0 sm:flex-shrink-0 h-24 w-24 rounded-full sm:mr-6 sm:mb-0 mb-4"
-          src={`https://avatars.dicebear.com/api/male/${username}.svg`}
-          alt="Profile"
-        />
-        <div className="text-center sm:text-left">
-          <h2 className="text-xl font-bold">{name}</h2>
-          <p className="text-sm text-gray-600">@{username}</p>
-          <p className="text-sm text-gray-600">{email}</p>
-          <p className="text-sm text-gray-600">{phone}</p>
-          <p className="text-sm text-gray-600">{website}</p>
-          <div className="mt-4">
-            <h3 className="text-lg font-semibold mb-2">Company</h3>
-            <p className="text-sm text-gray-600">{company.name}</p>
-            <p className="text-sm text-gray-600">{company.catchPhrase}</p>
-            <p className="text-sm text-gray-600">{company.bs}</p>
-          </div>
-        </div>
-      </div>
-      <div className="flex justify-center pb-4">
-        <label className="flex items-center cursor-pointer">
-          <div className={`w-10 h-5 bg-gray-300 rounded-full p-1 duration-300 ${isActive ? 'bg-green-500' : ''}`}>
-            <div className={`bg-white w-4 h-4 rounded-full shadow-md transform duration-300 ${isActive ? 'translate-x-5' : ''}`}></div>
-          </div>
-          <div className="ml-3 text-gray-700 font-medium">Activate Account</div>
-          <input
-            type="checkbox"
-            className="hidden"
-            checked={isActive}
-            onChange={toggleActivation}
-          />
-        </label>
-      </div>
+    <div className="p-4 border rounded shadow-md">
+      <h1 className="text-2xl font-bold mb-4">Hallo User</h1>
+      <button 
+        className="mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
+        onClick={() => handleButton('/login')}
+      >
+        Login
+      </button>
+      <button 
+        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700"
+        onClick={() => handleButton('/register')}
+      >
+        Register
+      </button>
     </div>
   );
 };

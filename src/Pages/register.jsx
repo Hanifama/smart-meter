@@ -1,15 +1,16 @@
-import React, { useState } from "react";
-import FormRegister from "../components/Fragments/FormRegister";
-import AuthLayouts from "../components/Layouts/AuthLayouts";
+import FormLogin from "../components/Fragments/FormLogin"
+import FormRegister from "../components/Fragments/FormRegister"
+import AuthLayouts from "../components/Layouts/AuthLayouts"
 
-const RegisterPage = () => {
-    const [isLoading, setIsLoading] = useState(false);
-
-    return (
-        <AuthLayouts title="Selamat Datang" desc="Silahkan Register Disini" type="register" isLoading={isLoading}>
-            <FormRegister setIsLoading={setIsLoading} />
+const RegisterPage = ( ) =>{
+    return(
+        <AuthLayouts 
+        title="Selamat Datang " 
+        desc="Silahkan isi data register anda Untuk Melanjutkan" 
+        type="register">
+            <FormRegister/>
         </AuthLayouts>
-    );
-};
+    )
+}
 
-export default RegisterPage;
+export default RegisterPage

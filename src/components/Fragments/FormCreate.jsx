@@ -1,106 +1,155 @@
-import React, { useEffect, useState } from 'react';
-import { Input, Button, Typography, Alert } from "@material-tailwind/react";
+import React, { useState, useEffect } from 'react';
+import { Alert } from "@material-tailwind/react";
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import InputForm from '../Elements/Input/Index';
+import Button from '../Elements/Button/Index';
+import { jwtDecode } from 'jwt-decode';
 
-const MemberFormCreate = () => {
+const UserFormCreate = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        id: '',
         name: '',
         email: '',
-        job: '',
-        org: '',
-        date: '',
-        img: '',
-        online: false
+        password: '',
+        phoneNumber: '',
+        role: '',
+        guidAplication: '',
+        companyGuid: '',
+        guid: ''
     });
+
+    const roles = [
+        {
+            id: 1,
+            name: "Super Admin",
+            value: "superAdmin"
+        },
+        {
+            id: 2,
+            name: "Admin Instansi",
+            value: "admin-instansi"
+        },
+        {
+            id: 3,
+            name: "Admin Cabang Instansi",
+            value: "admin-cabang-instansi"
+        },
+        {
+            id: 4,
+            name: "User Pelanggan",
+            value: "user-pelanggan"
+        },
+        {
+            id: 5,
+            name: "User Umum",
+            value: "user-umum"
+        },
+    ];
 
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
-    const [shouldNavigate, setShouldNavigate] = useState(false);
+    const [decodedToken, setDecodedToken] = useState(null);
 
+    function generateUUID() {
+        return 'USER-' + 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0,
+                v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
+    useEffect(() => {
+        
+        const token = localStorage.getItem('userToken');
+        if (token) {
+            const decodedToken = jwtDecode(token);
+            
+            setDecodedToken(decodedToken);
+            
+            setFormData(prevState => ({
+                ...prevState,
+                guidAplication: decodedToken.guidAplication,
+                companyGuid: decodedToken.companyGuid,
+                guid: generateUUID()
+            }));
+        }
+    }, []);
 
     const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
+        const { name, value } = e.target;
         setFormData({
             ...formData,
-            [name]: type === 'checkbox' ? checked : value
+            [name]: value
         });
-    };
-
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-
-        reader.onloadend = () => {
-            setFormData({
-                ...formData,
-                img: reader.result
-            });
-        };
-
-        if (file) {
-            reader.readAsDataURL(file);
-        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!formData.id || !formData.name || !formData.email || !formData.job || !formData.org || !formData.date || !formData.img) {
-            setError('All fields are required.');
-            return;
-        }
-
+        
         try {
-            const response = await axios.post('http://localhost:5000/members', formData);
+            const response = await axios.post('https://sso.pptik.id/api/v1/users/add', formData);
             console.log('Data successfully submitted:', response.data);
 
-            if (response.data.id) {
+            if (response.data.success) {
                 setSuccess(true);
-                setTimeout(() => {
-                    setShouldNavigate(true);
-                }, 3000);
+                setError('');
             } else {
                 console.error('Invalid server response:', response.data);
-                setError('Invalid server response.');
+                setError(response.data.message || 'Invalid server response.');
+                setSuccess(false);
             }
         } catch (error) {
             if (error.response && error.response.data) {
                 console.error('Error submitting data:', error.response.data);
+                setError(error.response.data.message || 'Error submitting data.');
             } else {
                 console.error('Error submitting data:', error);
+                setError('Error submitting data.');
             }
+            setSuccess(false);
         }
     };
 
     useEffect(() => {
-        if (shouldNavigate) {
-            navigate('/member');
+        if (success) {
+            setTimeout(() => {
+                navigate('/company');
+            }, 3000); // 3000ms = 3 detik
         }
-    }, [shouldNavigate, navigate]);
+    }, [success, navigate]);
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 mx-auto max-w-lg mt-8">
-            <Typography variant="h6" color="blue-gray" className="text-center">
-                Add Member
-            </Typography>
-            {error && <Alert color="red">{error}</Alert>}
-            {success && <Alert color="green">Data successfully submitted!</Alert>}
-            <div className="grid grid-cols-2 gap-4">
-                <Input label="ID" name="id" value={formData.id} onChange={handleChange} />
-                <Input label="Name" name="name" value={formData.name} onChange={handleChange} required />
-                <Input label="Email" name="email" value={formData.email} onChange={handleChange} type="email" required />
-                <Input label="Job" name="job" value={formData.job} onChange={handleChange} required />
-                <Input label="Organization" name="org" value={formData.org} onChange={handleChange} required />
-                <Input label="Date" name="date" type="date" value={formData.date} onChange={handleChange} required />
-                <Input label="Image URL" name="img" type="file" accept="image/*" onChange={handleImageChange} required />
-            </div>
-            <Button type="submit" className="mx-auto">Add</Button>
-        </form>
-
+        <div>
+            {decodedToken && (
+                <div>
+                    <h2>Token Data:</h2>
+                    <pre>{JSON.stringify(decodedToken, null, 2)}</pre>
+                </div>
+            )}
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4 mx-auto max-w-lg mt-8">
+                <h1 className="text-2xl items-center font-bold mb-4">Silakan tambahkan pengguna baru</h1>
+                {error && <Alert color="red">{error}</Alert>}
+                {success && <Alert color="green">Data User berhasil ditambah!</Alert>}
+                <div>
+                    <InputForm label="Name" name="name" value={formData.name} onChange={handleChange} required />
+                    <InputForm label="Email" name="email" value={formData.email} onChange={handleChange} type="email" required />
+                    <InputForm label="Password" name="password" value={formData.password} onChange={handleChange} required />
+                    <InputForm label="Phone Number" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required />
+                    <div className="mb-4">
+                        <select name="role" value={formData.role} onChange={handleChange} required>
+                            <option value="">Select Role</option>
+                            {roles.map(role => (
+                                <option key={role.value} value={role.value}>{role.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+                <Button type="submit" variant="bg-blue-400">Tambah</Button>
+            </form>
+        </div>
     );
 };
 
-export default MemberFormCreate;
+export default UserFormCreate;

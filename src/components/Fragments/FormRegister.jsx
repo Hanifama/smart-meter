@@ -3,33 +3,37 @@ import { useNavigate } from "react-router-dom";
 import Button from "../Elements/Button/Index";
 import InputForm from "../Elements/Input/Index";
 import Modal from "../Elements/Modal/Index";
-import { registerUser, fetchRoles, checkEmailExists, DEFAULT_GUID_APPLICATION, DEFAULT_GUID_COMPANY } from "../../server/index";
+import Loader from "../Elements/Loader/Index";
+import { registerUser, fetchCompanies, DEFAULT_GUID_APPLICATION } from "../../server/index";
 
-const FormRegister = ({ setIsLoading }) => {
+const FormRegister = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    fullName: "",
+    name: "",
     email: "",
     password: "",
     confirmPassword: "",
     phoneNumber: "",
-    role: ""
+    companyGuild: "",
   });
-  const [roles, setRoles] = useState([]);
+  const [companies, setCompanies] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+  const [isLoading, setLoading] = useState(false);
+  const [isSuccessModalClosed, setIsSuccessModalClosed] = useState(false);
+  const [isFormValid, setIsFormValid] = useState(true);
 
   useEffect(() => {
-    const getRoles = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetchRoles();
-        setRoles(response.data);
+        const response = await fetchCompanies();
+        setCompanies(response.data);
       } catch (error) {
-        console.error("Error fetching roles:", error);
+        console.error("Error fetching companies:", error);
       }
     };
 
-    getRoles();
+    fetchData();
   }, []);
 
   const handleChange = (e) => {
@@ -38,97 +42,109 @@ const FormRegister = ({ setIsLoading }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+    setLoading(true);
+    setIsFormValid(true);
 
-    if (!formData.fullName || !formData.email || !formData.password || !formData.confirmPassword || !formData.phoneNumber || !formData.role) {
-      setModalMessage("All fields are required.");
-      setIsModalOpen(true);
-      setIsLoading(false);
-      return;
-    }
+    const validateInputs = () => {
+      if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword || !formData.phoneNumber || !formData.companyGuild) {
+        setModalMessage("Mohon Lengkapi Data Anda Dengan Lengkap");
+        setIsModalOpen(true);
+        setLoading(false);
+        setIsFormValid(false);
+        return false;
+      }
 
-    if (formData.password !== formData.confirmPassword) {
-      setModalMessage("Passwords do not match.");
-      setIsModalOpen(true);
-      setIsLoading(false);
-      return;
-    }
+      if (formData.password !== formData.confirmPassword) {
+        setModalMessage("Passwords do not match.");
+        setIsModalOpen(true);
+        setLoading(false);
+        return false;
+      }
 
-    const emailExists = await checkEmailExists(formData.email);
-    if (emailExists) {
-      setModalMessage("Email already exists. Please use a different email.");
-      setIsModalOpen(true);
-      setIsLoading(false);
-      return;
-    }
+      return true;
+    };
+
+    if (!validateInputs()) return;
 
     const userData = {
-      fullName: formData.fullName,
+      name: formData.name,
       email: formData.email,
       password: formData.password,
       phoneNumber: formData.phoneNumber,
-      guidApplication: DEFAULT_GUID_APPLICATION,
-      companyGuild: DEFAULT_GUID_COMPANY,
-      role: parseInt(formData.role, 10)
+      guidAplication: DEFAULT_GUID_APPLICATION,
+      companyGuid: formData.companyGuild,
+      role: "user-pelanggan"
     };
 
     try {
       const response = await registerUser(userData);
-      if (response.status === 201) {
-        setTimeout(() => {
-          setModalMessage("Registration successful!");
-          setIsModalOpen(true);
-          setIsLoading(false);
-          setTimeout(() => {
-            setIsModalOpen(false);
-            navigate("/login");
-          }, 2000);
-          setFormData({
-            fullName: "",
-            email: "",
-            password: "",
-            confirmPassword: "",
-            phoneNumber: "",
-            role: ""
-          });
-        }, 2000);
+      if (response.status === 200) {
+        console.log("Email sent to:", formData.email);
+        setModalMessage(response.data.message || "Registration successful!");
       } else {
-        setModalMessage("Registration failed. Please try again later.");
-        setIsModalOpen(true);
-        setIsLoading(false);
+        const errorMessage = response.data.message || "Registration failed. Please try again later.";
+        setModalMessage(errorMessage);
       }
     } catch (error) {
       console.error("Error registering user:", error);
-      setModalMessage("Registration failed. Please try again later.");
+      const errorMessage = error.response?.data?.message || "Registration failed. Please try again later.";
+      setModalMessage(errorMessage);
+    } finally {
       setIsModalOpen(true);
-      setIsLoading(false);
+      setLoading(false);
     }
   };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setIsSuccessModalClosed(true);
+  };
+
+  const renderLoader = () => {
+    if (isLoading) {
+      return <Loader />;
+    } else {
+      navigate("/verifikasi", { state: { email: formData.email } });
+    }
+  };
+
+  useEffect(() => {
+    if (isSuccessModalClosed && isFormValid) {
+      renderLoader();
+    }
+  }, [isSuccessModalClosed, isFormValid]);
 
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <div className="mb-4">
+        <div className="mb-4 relative">
+          <label
+            className="absolute left-3 bg-white px-1 text-gray-500 transition-all  -top-3.5 text-sm">
+            pilihan <span className="text-red-600 text-base">*</span>
+          </label>
           <select
-            name="role"
-            value={formData.role}
+            name="companyGuild"
+            value={formData.companyGuild}
             onChange={handleChange}
-            className="mt-1 p-2 border w-full rounded"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
+            required
           >
-            <option value="">Select Role</option>
-            {roles.map((role) => (
-              <option key={role.id} value={role.id}>{role.name}</option>
+            <option>Pilihan</option>
+            {companies.map((company) => (
+              <option key={company.guid} value={company.guid}>{company.name}</option>
             ))}
           </select>
         </div>
         <InputForm
           label="Full Name"
           type="text"
-          placeholder="Your Name"
-          name="fullName"
-          value={formData.fullName}
+          placeholder="Masukan Nama Anda"
+          name="name"
+          value={formData.name}
           onChange={handleChange}
+          required
         />
+
         <InputForm
           label="Email"
           type="email"
@@ -136,6 +152,7 @@ const FormRegister = ({ setIsLoading }) => {
           name="email"
           value={formData.email}
           onChange={handleChange}
+          required
         />
         <InputForm
           label="Password"
@@ -144,6 +161,7 @@ const FormRegister = ({ setIsLoading }) => {
           name="password"
           value={formData.password}
           onChange={handleChange}
+          required
         />
         <InputForm
           label="Confirm Password"
@@ -152,6 +170,7 @@ const FormRegister = ({ setIsLoading }) => {
           name="confirmPassword"
           value={formData.confirmPassword}
           onChange={handleChange}
+          required
         />
         <InputForm
           label="Phone Number"
@@ -160,12 +179,15 @@ const FormRegister = ({ setIsLoading }) => {
           name="phoneNumber"
           value={formData.phoneNumber}
           onChange={handleChange}
+          required
         />
-        <Button variant="bg-blue-600 w-full">Register</Button>
+        <Button variant="bg-primary w-full" disabled={isLoading}>
+          {isLoading ? <Loader /> : "Register"}
+        </Button>
       </form>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <h3 className="text-lg font-bold mb-4">Pemberitahuan !! </h3>
+      <Modal isOpen={isModalOpen} onClose={handleModalClose}>
+        <h3 className="text-lg font-bold mb-4">Notification!</h3>
         <div className="p-4">{modalMessage}</div>
       </Modal>
     </>

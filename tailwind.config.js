@@ -6,14 +6,22 @@ export default {
   ],
   theme: {
     extend: {
+      spacing: {
+        '72': '18rem',
+        '84': '21rem',
+        '96': '24rem',
+      },
+      fontFamily: {
+        poppins: ['Poppins', 'sans-serif'],
+      },
       colors: {
         primary: {
-          DEFAULT: '#111317',
+          DEFAULT: '#365486',
           light: '#1f2125',
           'extra-light': '#35373b',
         },
         secondary: {
-          DEFAULT: '#f9ac54',
+          DEFAULT: '#7FC7D9',
           dark: '#d79447',
         },
         text: {
@@ -24,8 +32,10 @@ export default {
       maxWidth: {
         'custom': '1200px',
       },
+      screens: {
+        'md': {'max': '767px'},
+      },
     },
   },
   plugins: [],
-}
-
+};
